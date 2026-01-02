@@ -21,10 +21,12 @@ jobs:
 
     - name: Restore NuGet Packages
       run: nuget restore Notepad.csproj
+      working-directory: ./Notepad
 
     - name: Build with MSBuild
       run: |
         msbuild Notepad.csproj /p:Configuration=Release /p:Platform="AnyCPU" /p:ApplicationManifest=app.manifest
+      working-directory: ./Notepad
 
     - name: Upload Single EXE
       uses: actions/upload-artifact@v4
