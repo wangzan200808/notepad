@@ -1,0 +1,34 @@
+name: Build WinForms Notepad
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest # 必须使用 windows 环境来编译 WinForms
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1
+
+    - name: Restore NuGet Packages
+      run: nuget restore Notepad.sln # 确保你有 .sln 文件，或者指定 .csproj
+
+    - name: Build Solution
+      run: |
+        msbuild Notepad.sln /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Notepad-Release
+        path: |
+          **/bin/Release/*.exe
+          **/bin/Release/*.dll
+          **/bin/Release/*.config
