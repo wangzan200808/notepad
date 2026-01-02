@@ -24,7 +24,7 @@ jobs:
 
     - name: Build with MSBuild
       run: |
-        msbuild Notepad.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:ApplicationManifest=app.manifest
+        msbuild Notepad.csproj /p:Configuration=Release /p:Platform="AnyCPU" /p:ApplicationManifest=app.manifest
 
     - name: Upload Single EXE
       uses: actions/upload-artifact@v4
