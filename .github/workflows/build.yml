@@ -5,30 +5,30 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest # 必须使用 windows 环境来编译 WinForms
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v4
+
+    - name: Setup .NET SDK (Required for NuGet)
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.x' # 用于运行还原工具
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1
-
     - name: Restore NuGet Packages
-      run: nuget restore Notepad.sln # 确保你有 .sln 文件，或者指定 .csproj
+      run: nuget restore Notepad.csproj
 
-    - name: Build Solution
+    - name: Build with MSBuild
       run: |
-        msbuild Notepad.sln /p:Configuration=Release /p:Platform="Any CPU"
+        msbuild Notepad.csproj /p:Configuration=Release /p:Platform="Any CPU" /p:ApplicationManifest=app.manifest
 
-    - name: Upload Artifact
+    - name: Upload Single EXE
       uses: actions/upload-artifact@v4
       with:
-        name: Notepad-Release
-        path: |
-          **/bin/Release/*.exe
-          **/bin/Release/*.dll
-          **/bin/Release/*.config
+        name: Notepad-Fixed-DPI
+        # 因为用了 Costura.Fody，依赖都会打进 EXE，只需要上传这一个文件
+        path: bin/Release/Notepad.exe
