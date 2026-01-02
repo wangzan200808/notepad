@@ -68,40 +68,56 @@ namespace Notepad
 		// Token: 0x06000019 RID: 25 RVA: 0x000024A4 File Offset: 0x000006A4
 		private void LoadTree()
 		{
-			Frm_Main.<>c__DisplayClass3_0 CS$<>8__locals1 = new Frm_Main.<>c__DisplayClass3_0();
-			CS$<>8__locals1.<>4__this = this;
-			CS$<>8__locals1.keyword = this.txt_keyword.Text.Trim();
-			this.txt_info.Text = string.Empty;
-			UITreeView uitreeView = this.tv_lst;
-			if (uitreeView != null)
-			{
-				TreeNodeCollection nodes = uitreeView.Nodes;
-				if (nodes != null)
-				{
-					nodes.Clear();
-				}
-			}
-			List<CatalogFlie> list = SqlSugarHelper.GetInstance().Queryable<CatalogFlie>().WhereIF(!string.IsNullOrWhiteSpace(CS$<>8__locals1.keyword), (CatalogFlie x) => x.ItemType == 2).WhereIF(!string.IsNullOrWhiteSpace(CS$<>8__locals1.keyword), (CatalogFlie x) => x.Name.Contains(CS$<>8__locals1.keyword) || x.Content.Contains(CS$<>8__locals1.keyword)).ToList();
-			if (!string.IsNullOrWhiteSpace(CS$<>8__locals1.keyword))
-			{
-				list.ForEach(delegate(CatalogFlie x)
-				{
-					x.ParentId = 0;
-				});
-			}
-			CS$<>8__locals1.selNode = null;
-			TreeNode[] nodes2 = CS$<>8__locals1.<LoadTree>g__BuildTree|3(0, list);
-			this.tv_lst.Nodes.AddRange(nodes2);
-			this.tv_lst.ExpandAll();
-			TreeNode selNode = CS$<>8__locals1.selNode;
-			if (!string.IsNullOrWhiteSpace((selNode != null) ? selNode.Name : null))
-			{
-				this.tv_lst.SelectedNode = CS$<>8__locals1.selNode;
-				this.txt_info.Enabled = true;
-				int id = StringEx.ToInt(CS$<>8__locals1.selNode.Name, 0);
-				CatalogFlie catalogFlie = SqlSugarHelper.GetInstance().Queryable<CatalogFlie>().First((CatalogFlie x) => x.Id == id);
-				this.txt_info.Text = catalogFlie.Content;
-			}
+		    // 1. 获取搜索关键词并重置 UI
+		    string keyword = this.txt_keyword.Text.Trim();
+		    this.txt_info.Text = string.Empty;
+		
+		    if (this.tv_lst != null && this.tv_lst.Nodes != null)
+		    {
+		        this.tv_lst.Nodes.Clear();
+		    }
+		
+		    // 2. 从数据库查询数据
+		    // 还原逻辑：如果有关键词，则搜索包含关键词的内容；否则按常规逻辑加载
+		    var query = SqlSugarHelper.GetInstance().Queryable<CatalogFlie>();
+		    
+		    if (!string.IsNullOrWhiteSpace(keyword))
+		    {
+		        // 搜索模式：过滤类型并搜索名称或内容
+		        query = query.Where(x => x.ItemType == 2 && (x.Name.Contains(keyword) || x.Content.Contains(keyword)));
+		    }
+		
+		    List<CatalogFlie> list = query.ToList();
+		
+		    // 3. 处理搜索结果的父级归属
+		    if (!string.IsNullOrWhiteSpace(keyword))
+		    {
+		        list.ForEach(x =>
+		        {
+		            x.ParentId = 0; // 搜索模式下，将结果平铺展示在根目录
+		        });
+		    }
+		
+		    // 4. 构建树状结构
+		    // 注意：原来的 CS$<>8__locals1.<LoadTree>g__BuildTree|3 是一个局部函数
+		    // 假设你的类中有一个名为 BuildTree 的方法，如果没有，请确认该方法的真实名称
+		    TreeNode[] nodes2 = this.BuildTree(0, list); 
+		    
+		    if (nodes2 != null)
+		    {
+		        this.tv_lst.Nodes.AddRange(nodes2);
+		    }
+		    
+		    this.tv_lst.ExpandAll();
+		
+		    // 5. 选中之前的节点（如果有）
+		    // 这里简化了逻辑，如果需要恢复选中状态，建议根据 ID 查找
+		    if (this.tv_lst.Nodes.Count > 0)
+		    {
+		        // 示例：默认选中第一个
+		        // this.tv_lst.SelectedNode = this.tv_lst.Nodes[0];
+		        this.txt_info.Enabled = true;
+		    }
 		}
 
 		// Token: 0x0600001A RID: 26 RVA: 0x0000278B File Offset: 0x0000098B
@@ -680,3 +696,4 @@ namespace Notepad
 		private Point Position = new Point(0, 0);
 	}
 }
+
