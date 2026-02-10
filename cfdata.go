@@ -100,7 +100,7 @@ var (
 func main() {
 	// 解析命令行参数
 	flag.IntVar(&listenPort, "port", 13335, "服务监听端口")
-	flag.StringVar(&speedTestURL, "url", "speed.cloudflare.com/__down?bytes=100000000", "测速下载地址（不含协议前缀）")
+	flag.StringVar(&speedTestURL, "url", "download.parallels.com/desktop/v18/18.3.4-53630/ParallelsDesktop-18.3.4-53630.dmg", "测速下载地址（不含协议前缀）")
 	flag.Parse()
 
 	// 初始化位置数据 (本地缓存优先)
@@ -723,4 +723,5 @@ func getRandomIPv6s(ipList []string) []string {
 		randomIPs = append(randomIPs, strings.Join(sections, ":"))
 	}
 	return randomIPs
+
 }
